@@ -1,7 +1,7 @@
 # NestorHannielPerezTobias_Movil
 
-Tareas y actividades de la materia de Desarrollo Móvil.
+Tareas y actividades de la materia de Desarrollo Movil.
 
 ## Contenido
-- **pizzapp_pantallas/**: Capturas de la aplicación PizzApp.
-- **actividad_uno_septiembre**: Proyecto Flutter con registro de preferencias y controles UI.
+- **pizzapp_pantallas/**: Capturas de la aplicacion PizzApp.
+- **actividad_uno_septiembre/**: Proyecto Flutter con registro de preferencias y controles UI.
