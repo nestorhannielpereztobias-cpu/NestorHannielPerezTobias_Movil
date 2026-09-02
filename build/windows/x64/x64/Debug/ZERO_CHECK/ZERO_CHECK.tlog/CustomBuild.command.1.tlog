@@ -1,0 +1,10 @@
+^C:\USERS\93536\DESKTOP\HANNIEL\SEMESTRE 13\ACTIVIDAD_UNO_SEPTIEMBRE\BUILD\WINDOWS\X64\CMAKEFILES\80023184530427BB0C6A248C9CB0588B\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" "-SC:/Users/93536/Desktop/Hanniel/Semestre 13/actividad_uno_septiembre/windows" "-BC:/Users/93536/Desktop/Hanniel/Semestre 13/actividad_uno_septiembre/build/windows/x64" --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file "C:/Users/93536/Desktop/Hanniel/Semestre 13/actividad_uno_septiembre/build/windows/x64/actividad_uno_septiembre.sln"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
