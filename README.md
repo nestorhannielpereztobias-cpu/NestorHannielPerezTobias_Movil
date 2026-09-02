@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # actividad_uno_septiembre
 
 A new Flutter project.
@@ -15,3 +16,7 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+=======
+# NestorHannielPerezTobias_Movil
+Tareas de la materia de Desarrollo Móvil
+>>>>>>> 43758189f17971c4d5a9e27c59fef0c1499e83c7
