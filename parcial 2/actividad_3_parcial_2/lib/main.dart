@@ -14,14 +14,14 @@ Future<void> main() async {
 
 final supabase = Supabase.instance.client;
 
-// Paleta de colores
+// Colores
 const Color kPrimaryOrange = Color(0xFFFF6B18);
 const Color kDarkText = Color(0xFF1B2430);
 const Color kLightGreyBg = Color(0xFFF6F7FB);
 const Color kBorderGrey = Color(0xFFE2E8F0);
 const Color kGreenPay = Color(0xFF10B981);
 
-// Modelo de Pizza
+// Modelo
 class PizzaItem {
   final String id;
   final String nombre;
@@ -30,7 +30,7 @@ class PizzaItem {
   PizzaItem({required this.id, required this.nombre, required this.precio});
 }
 
-// Gestor del Carrito
+// Carrito
 class CartManager {
   static final ValueNotifier<List<PizzaItem>> items = ValueNotifier([]);
 
@@ -110,7 +110,6 @@ class WelcomeScreen extends StatelessWidget {
                 height: 52,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Si ya hay sesión activa va directo al menú, si no al login
                     if (supabase.auth.currentUser != null) {
                       Navigator.pushReplacement(
                         context,
@@ -152,7 +151,7 @@ class WelcomeScreen extends StatelessWidget {
 }
 
 // -------------------------------------------------------------
-// 2 y 3. LOGIN & REGISTRO CON LÓGICA DE SUPABASE
+// 2 y 3. LOGIN & REGISTRO
 // -------------------------------------------------------------
 class AuthScreen extends StatefulWidget {
   final bool isLogin;
@@ -179,6 +178,7 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   void _showMessage(String text, {bool isError = false}) {
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(text),
@@ -191,7 +191,7 @@ class _AuthScreenState extends State<AuthScreen> {
     final password = passwordCtrl.text.trim();
 
     if (password.length < 6) {
-      _showMessage('La contraseña debe tener al menos 6 caracteres', isError: true);
+      _showMessage('La contraseña debe tener mínimo 6 caracteres', isError: true);
       return;
     }
 
@@ -199,7 +199,6 @@ class _AuthScreenState extends State<AuthScreen> {
 
     try {
       if (isLogin) {
-        // LÓGICA DE INICIAR SESIÓN
         final email = loginEmailCtrl.text.trim();
         if (email.isEmpty) {
           _showMessage('Ingresa tu correo electrónico', isError: true);
@@ -207,19 +206,20 @@ class _AuthScreenState extends State<AuthScreen> {
           return;
         }
 
-        await supabase.auth.signInWithPassword(
+        final res = await supabase.auth.signInWithPassword(
           email: email,
           password: password,
         );
 
-        _showMessage('¡Bienvenido de nuevo!');
-        if (!mounted) return;
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const MenuScreen()),
-        );
+        if (res.user != null) {
+          _showMessage('¡Bienvenido!');
+          if (!mounted) return;
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const MenuScreen()),
+          );
+        }
       } else {
-        // LÓGICA DE REGISTRO
         final email = registerEmailCtrl.text.trim();
         final username = registerUserCtrl.text.trim();
 
@@ -230,29 +230,30 @@ class _AuthScreenState extends State<AuthScreen> {
         }
 
         if (!termsAccepted) {
-          _showMessage('Debes aceptar los términos y condiciones', isError: true);
+          _showMessage('Acepta los términos y condiciones', isError: true);
           setState(() => loading = false);
           return;
         }
 
-        // Registrar usuario en Supabase guardando su username en la metadata
-        await supabase.auth.signUp(
+        // SignUp simplificado y directo
+        final res = await supabase.auth.signUp(
           email: email,
           password: password,
-          data: {'username': username},
         );
 
-        _showMessage('Cuenta creada con éxito. Iniciando sesión...');
-        if (!mounted) return;
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const MenuScreen()),
-        );
+        if (res.user != null) {
+          _showMessage('¡Cuenta registrada exitosamente!');
+          if (!mounted) return;
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const MenuScreen()),
+          );
+        }
       }
     } on AuthException catch (e) {
       _showMessage(e.message, isError: true);
     } catch (e) {
-      _showMessage('Ocurrió un error inesperado. Intenta de nuevo.', isError: true);
+      _showMessage('Error al conectar: $e', isError: true);
     } finally {
       if (mounted) setState(() => loading = false);
     }
@@ -344,18 +345,12 @@ class _AuthScreenState extends State<AuthScreen> {
                 _buildTextField(passwordCtrl, '••••••••', obscureText: true),
                 const SizedBox(height: 18),
                 Center(
-                  child: Column(
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          _showMessage('Función para reestablecer clave enviada al correo');
-                        },
-                        child: const Text(
-                          '¿Olvidó su contraseña?',
-                          style: TextStyle(color: kPrimaryOrange, fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                    ],
+                  child: TextButton(
+                    onPressed: () => _showMessage('Opción de recuperación'),
+                    child: const Text(
+                      '¿Olvidó su contraseña?',
+                      style: TextStyle(color: kPrimaryOrange, fontWeight: FontWeight.w600),
+                    ),
                   ),
                 ),
               ] else ...[
@@ -366,7 +361,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 _buildTextField(registerEmailCtrl, 'correo@ejemplo.com', keyboardType: TextInputType.emailAddress),
                 const SizedBox(height: 16),
                 _buildFieldLabel('Contraseña'),
-                _buildTextField(passwordCtrl, '•••••••• (mínimo 6 caracteres)', obscureText: true),
+                _buildTextField(passwordCtrl, '••••••••', obscureText: true),
                 const SizedBox(height: 14),
                 Row(
                   children: [
@@ -464,7 +459,7 @@ class _AuthScreenState extends State<AuthScreen> {
 }
 
 // -------------------------------------------------------------
-// 4. PANTALLA DE MENÚ CON SESIÓN REAL
+// 4. MENÚ
 // -------------------------------------------------------------
 class MenuScreen extends StatelessWidget {
   const MenuScreen({super.key});
@@ -629,7 +624,6 @@ class MenuScreen extends StatelessWidget {
                   },
                 ),
               ),
-              // BOTÓN SALIR / CERRAR SESIÓN
               SizedBox(
                 width: double.infinity,
                 height: 48,
@@ -665,7 +659,7 @@ class MenuScreen extends StatelessWidget {
 }
 
 // -------------------------------------------------------------
-// 5. PANTALLA DE CARRITO
+// 5. CARRITO
 // -------------------------------------------------------------
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
